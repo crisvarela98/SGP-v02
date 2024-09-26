@@ -19,7 +19,26 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('Sesión cerrada');
         window.location.href = 'login.html';
     });
+
+    // Limpiar localStorage al hacer clic en "Nuevo pedido" (excepto el número de pedido)
+    document.querySelector('.button[href="zona.html"]').addEventListener('click', function() {
+        limpiarLocalStorage();
+    });
 });
+
+// Función para limpiar el localStorage excepto el número de pedido
+function limpiarLocalStorage() {
+    // Guarda el número de pedido antes de limpiar
+    const orderId = localStorage.getItem('orderId');
+
+    // Limpia todos los datos excepto el `orderId`
+    localStorage.clear();
+    
+    // Restaura el número de pedido
+    if (orderId) {
+        localStorage.setItem('orderId', orderId);
+    }
+}
 
 // Cargar notas desde MongoDB
 window.onload = loadNotes;

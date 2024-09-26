@@ -140,40 +140,36 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // El historial de pedidos sigue dependiendo de localStorage por el momento.
+    // Mostrar historial de pedidos desde MongoDB
     function showOrderHistory(client) {
         const historyModal = document.getElementById('history-modal');
         historyModal.style.display = "block";
 
-        // Aquí se podría integrar MongoDB en el futuro para almacenar y cargar pedidos
-        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        // Obtener pedidos desde MongoDB
+        fetch(`/models/pedidos?clientId=${client._id}`)
+            .then(response => response.json())
+            .then(orders => {
+                const orderHistoryList = document.getElementById('order-history-list');
+                orderHistoryList.innerHTML = '';
 
-        const clientOrders = orders.filter(order => order.customer.id === client._id);
+                // Mostrar cada pedido con Nro, Fecha y Monto
+                orders.forEach(order => {
+                    const total = order.cart.reduce((acc, item) => acc + (item.precioUnitario * item.unidades), 0).toFixed(2);
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `Pedido Nro: ${order.id}, Fecha: ${order.date}, Monto: $${total}`;
+                    orderHistoryList.appendChild(listItem);
+                });
 
-        const confirmedOrders = clientOrders.filter(order => order.status === 'confirmado');
-        const savedOrders = clientOrders.filter(order => order.status === 'guardado');
-        const pendingOrders = clientOrders.filter(order => order.status === 'pendiente');
-
-        const orderHistoryList = document.getElementById('order-history-list');
-        orderHistoryList.innerHTML = `
-            <div class="order-section">
-                <h3>Confirmados</h3>
-                <ul>${confirmedOrders.map(order => `<li>Pedido ${order.id} - Fecha: ${order.date}</li>`).join('')}</ul>
-            </div>
-            <div class="order-section">
-                <h3>Guardados</h3>
-                <ul>${savedOrders.map(order => `<li>Pedido ${order.id} - Fecha: ${order.date}</li>`).join('')}</ul>
-            </div>
-            <div class="order-section">
-                <h3>Pendientes</h3>
-                <ul>${pendingOrders.map(order => `<li>Pedido ${order.id} - Fecha: ${order.date}</li>`).join('')}</ul>
-            </div>
-            <button class="go-to-orders-button">Ver todos los pedidos</button>
-        `;
-
-        document.querySelector('.go-to-orders-button').onclick = () => {
-            window.location.href = '/views/order_list.html';
-        };
+                // Botón para ver todos los pedidos
+                const goToOrdersButton = document.createElement('button');
+                goToOrdersButton.textContent = 'Ver todos los pedidos';
+                goToOrdersButton.classList.add('go-to-orders-button');
+                goToOrdersButton.onclick = () => {
+                    window.location.href = '/views/orders_list.html';
+                };
+                orderHistoryList.appendChild(goToOrdersButton);
+            })
+            .catch(error => console.error('Error al obtener el historial de pedidos:', error));
     }
 
     // Cerrar el modal de historial

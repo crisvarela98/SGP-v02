@@ -1,4 +1,4 @@
-body {
+body { 
     margin: 0;
     padding: 0;
     background-color: #000;
@@ -14,7 +14,6 @@ header {
     padding: 10px 0px;
     width: 100%;
     box-sizing: border-box;
-    
 }
 
 .back-button {
@@ -30,16 +29,15 @@ header {
     transition: background-color 0.3s;
 }
 
+.back-button:hover {
+    background-color: #A32A44;
+}
+
 h1 {
     color: #fff;
     margin: 0;
     text-align: center;
     flex-grow: 1;
-}
-
-
-.back-button:hover {
-    background-color: #A32A44;
 }
 
 .container {
@@ -54,16 +52,16 @@ h1 {
 
 #clienteContainer {
     width: 100%;
+    max-width: 600px; /* Limitar el ancho máximo */
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column; /* Organiza los botones como una lista */
     gap: 10px;
-    box-sizing: border-box; /* Asegura que el padding no desborde el contenedor */
+    box-sizing: border-box;
 }
 
 .cliente-button {
     display: block;
-    width: 100%; /* Ajuste para ocupar todo el ancho del contenedor */
+    width: 100%;
     padding: 15px;
     font-size: 18px;
     color: #fff;
@@ -71,26 +69,27 @@ h1 {
     background-color: #333;
     cursor: pointer;
     border-radius: 5px;
-    transition: background-color 0.3s;
-    height: 100px;
-    margin: 10px 0; /* Reducir el margen vertical */
-    box-sizing: border-box; /* Asegura que el padding no desborde el botón */
+    transition: background-color 0.3s, border-color 0.3s;
+    margin: 10px 0; /* Espaciado vertical */
+    box-sizing: border-box;
+    text-align: left; /* Alinear texto a la izquierda */
 }
 
 .cliente-button:hover {
     background-color: #A32A44;
+    border-color: #A32A44;
 }
 
 @media (max-width: 870px) {
     .cliente-button {
-        width: 100%; /* Mantener el botón a todo lo ancho del contenedor */
-        height: 150px;
+        font-size: 16px;
+        padding: 15px;
     }
 }
 
 @media (max-width: 480px) {
     .cliente-button {
-        width: 100%; /* Mantener el botón a todo lo ancho del contenedor en pantallas pequeñas */
-        height: 150px;
+        font-size: 14px;
+        padding: 10px;
     }
 }

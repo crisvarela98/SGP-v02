@@ -5,32 +5,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const saveOrderLink = document.getElementById('save-order-link');
     const confirmOrderLink = document.getElementById('confirm-order-link');
 
+    // Cargar el carrito desde localStorage
     let cart = JSON.parse(localStorage.getItem('carrito')) || [];
-    let orderId = '00000001';
-    let selectedClient = JSON.parse(localStorage.getItem('selectedClient')) || {};
-    let selectedZone = localStorage.getItem('selectedZone') || '';
+    let orderId = localStorage.getItem('orderId') || '00000001';
 
-    // Ensure the cart is not empty
-    if (cart.length === 0) {
-        alert('No hay productos en el carrito.');
-        window.location.href = 'productos.html'; // Redirect to products if the cart is empty
+    // Cargar la información del cliente y zona correctamente desde localStorage
+    let selectedClient = JSON.parse(localStorage.getItem('clienteSeleccionado')) || {};
+    let selectedZone = localStorage.getItem('zonaSeleccionada') || '';
+
+    // Verificar si la información del cliente está cargada
+    if (!selectedClient.name) {
+        alert('Por favor, selecciona primero un cliente.');
+        window.location.href = 'zona.html'; // Redirige si no hay un cliente seleccionado
         return;
     }
 
-    // Display customer info
+    // Mostrar la información del cliente
     displayCustomerInfo(selectedClient, selectedZone);
 
-    // Display the cart order details
-    displayOrder();
-
-    // Function to display customer information
     function displayCustomerInfo(client, zone) {
-        if (!client.name) {
-            alert('Por favor, selecciona primero un cliente.');
-            window.location.href = 'zona.html'; // Redirect if no client is selected
-            return;
-        }
-
         customerInfoContainer.innerHTML = `
             <p><strong>Cliente:</strong> ${client.name} (${client.storeName})</p>
             <p><strong>Zona:</strong> ${zone}</p>
@@ -40,14 +33,16 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    // Function to display the order details
-    function displayOrder() {
+    // Función para mostrar los detalles del pedido
+    async function displayOrder() {
         orderDetails.innerHTML = '';
         let subTotal = 0;
 
+        // Crear la tabla
         const table = document.createElement('table');
         table.classList.add('order-table');
 
+        // Crear el encabezado de la tabla
         const headerRow = document.createElement('tr');
         headerRow.innerHTML = `
             <th>Código</th>
@@ -61,86 +56,89 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         table.appendChild(headerRow);
 
-        cart.forEach((item, index) => {
-            let bonificacionTexto = "N/A";
-            let unidadesBonificadas = 0;
-            const nuevoPrecio = item.precioUnitario.toFixed(2);
+        if (Array.isArray(cart)) {
+            cart.forEach((item, index) => {
+                let bonificacionTexto = "N/A";
+                let unidadesBonificadas = 0;
+                const nuevoPrecio = item.precioUnitario.toFixed(2);
 
-            // Calculate the bonus units if applicable
-            if (item.descuento.includes('+')) {
-                const [compra, regalo] = item.descuento.split('+').map(Number);
-                unidadesBonificadas = Math.floor(item.unidades / compra) * regalo;
-                bonificacionTexto = `${unidadesBonificadas}`;
-            }
+                // Calcular unidades bonificadas solo si item.descuento está definido
+                if (item.descuento && item.descuento.includes('+')) {
+                    const [compra, regalo] = item.descuento.split('+').map(Number);
+                    unidadesBonificadas = Math.floor(item.unidades / compra) * regalo;
+                    bonificacionTexto = `${unidadesBonificadas}`;
+                }
 
-            const totalWithoutIVA = nuevoPrecio * item.unidades;
+                const totalWithoutIVA = nuevoPrecio * item.unidades;
 
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${item.codigo}</td>
-                <td>${item.descripcion}</td>
-                <td><input type="number" class="quantity-input" value="${item.unidades}" min="1" data-index="${index}"></td>
-                <td>${bonificacionTexto}</td>
-                <td>${parseFloat(item.descuento)}%</td>
-                <td>$${nuevoPrecio}</td>
-                <td>$${totalWithoutIVA.toFixed(2)}</td>
-                <td><button class="delete-item-button" data-index="${index}">Eliminar</button></td>
-            `;
-            table.appendChild(row);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.codigo}</td>
+                    <td>${item.descripcion}</td>
+                    <td><input type="number" class="quantity-input" value="${item.unidades}" min="1" data-index="${index}"></td>
+                    <td>${bonificacionTexto}</td>
+                    <td>${parseFloat(item.descuento) || 0}%</td>
+                    <td>$${nuevoPrecio}</td>
+                    <td>$${totalWithoutIVA.toFixed(2)}</td>
+                    <td><button class="delete-item-button" data-index="${index}">Eliminar</button></td>
+                `;
+                table.appendChild(row);
 
-            subTotal += totalWithoutIVA;
-        });
+                subTotal += totalWithoutIVA;
+            });
 
-        orderDetails.appendChild(table);
+            orderDetails.appendChild(table);
 
-        const iva = subTotal * 0.21;
-        const total = subTotal + iva;
+            const iva = subTotal * 0.21;
+            const total = subTotal + iva;
 
-        document.getElementById('subtotal').textContent = `$${subTotal.toFixed(2)}`;
-        document.getElementById('iva').textContent = `$${iva.toFixed(2)}`;
-        totalPriceElement.textContent = `$${total.toFixed(2)}`;
+            document.getElementById('subtotal').textContent = `$${subTotal.toFixed(2)}`;
+            document.getElementById('iva').textContent = `$${iva.toFixed(2)}`;
+            totalPriceElement.textContent = `$${total.toFixed(2)}`;
 
-        // Handle quantity updates
-        document.querySelectorAll('.quantity-input').forEach(input => {
-            input.addEventListener('change', updateCart);
-        });
+            // Manejar cambios en cantidad
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', updateCart);
+            });
 
-        // Handle item removal
-        document.querySelectorAll('.delete-item-button').forEach(button => {
-            button.addEventListener('click', deleteCartItem);
-        });
+            // Manejar eliminación de productos
+            document.querySelectorAll('.delete-item-button').forEach(button => {
+                button.addEventListener('click', deleteCartItem);
+            });
+        } else {
+            orderDetails.innerHTML = '<p>No hay productos en el carrito.</p>';
+        }
     }
 
-    // Function to update cart quantities
     function updateCart(event) {
         const index = event.target.dataset.index;
         const newValue = parseInt(event.target.value);
 
         cart[index].unidades = newValue;
         localStorage.setItem('carrito', JSON.stringify(cart));
-        displayOrder(); // Refresh order details
+        displayOrder(); // Refresca la tabla
     }
 
-    // Function to delete an item from the cart
     function deleteCartItem(event) {
         const index = event.target.dataset.index;
-        cart.splice(index, 1);
+        cart.splice(index, 1); // Eliminar producto del carrito
 
         localStorage.setItem('carrito', JSON.stringify(cart));
-        displayOrder(); // Refresh order details
+        displayOrder(); // Refresca la tabla
     }
 
-    // Handle save order action
+    displayOrder();
+
+    // Guardar el pedido
     saveOrderLink.addEventListener('click', function() {
         saveOrConfirmOrder('guardado');
     });
 
-    // Handle confirm order action
+    // Confirmar el pedido
     confirmOrderLink.addEventListener('click', function() {
         saveOrConfirmOrder('confirmado');
     });
 
-    // Function to save or confirm an order
     function saveOrConfirmOrder(status) {
         const order = {
             id: orderId,
@@ -151,9 +149,11 @@ document.addEventListener('DOMContentLoaded', function() {
             cart: cart
         };
 
-        // Increment order ID for the next order
+        // Incrementar el ID para el próximo pedido
         orderId = (parseInt(orderId) + 1).toString().padStart(8, '0');
+        localStorage.setItem('orderId', orderId);
 
+        // Guardar el pedido en la base de datos MongoDB
         fetch('/models/pedidos', {
             method: 'POST',
             headers: {
@@ -163,14 +163,17 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(() => {
             alert(`Pedido ${status} con éxito.`);
-            // Clear cart and client info after placing the order
-            cart = [];
-            selectedClient = {};
-            selectedZone = '';
-            localStorage.removeItem('carrito'); // Clear the cart from localStorage
-            localStorage.removeItem('selectedClient'); // Clear the client info
-            window.location.href = 'orders_list.html'; // Redirect to orders list
+            limpiarLocalStorage(); // Llama a la función de limpieza para eliminar todos los datos
+            window.location.href = 'orders_list.html'; // Redirigir a la lista de pedidos
         })
         .catch(error => console.error('Error al guardar el pedido:', error));
+    }
+
+    // Función para limpiar el localStorage
+    function limpiarLocalStorage() {
+        localStorage.removeItem('carrito');
+        localStorage.removeItem('clienteSeleccionado');
+        localStorage.removeItem('zonaSeleccionada');
+        localStorage.removeItem('orderId'); // Si deseas eliminar el ID del pedido para un nuevo ciclo
     }
 });

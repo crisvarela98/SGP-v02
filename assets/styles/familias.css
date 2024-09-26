@@ -13,7 +13,6 @@ header {
     padding: 10px 0px;
     width: 100%;
     box-sizing: border-box;
-    
 }
 
 .back-button {
@@ -29,6 +28,10 @@ header {
     transition: background-color 0.3s;
 }
 
+.back-button:hover {
+    background-color: #A32A44;
+}
+
 h1 {
     color: #fff;
     margin: 0;
@@ -36,14 +39,15 @@ h1 {
     flex-grow: 1;
 }
 
-
-
-.back-button:hover {
-    background-color: #A32A44;
-}
-
 .container {
     padding: 20px;
+    width: 100%;
+    max-width: 600px; /* Limitar el ancho máximo */
+    display: flex;
+    flex-direction: column; /* Organiza los botones como una lista */
+    align-items: center;
+    box-sizing: border-box;
+    gap: 10px;
 }
 
 .familia-button {
@@ -57,9 +61,11 @@ h1 {
     background-color: #333;
     cursor: pointer;
     border-radius: 5px;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, border-color 0.3s;
+    text-align: left; /* Alinear texto a la izquierda */
 }
 
 .familia-button:hover {
     background-color: #A32A44;
+    border-color: #A32A44;
 }

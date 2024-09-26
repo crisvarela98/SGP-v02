@@ -1,5 +1,7 @@
+
 document.addEventListener('DOMContentLoaded', function () {
     const zonaContainer = document.getElementById('zonaContainer');
+    
     fetch('/models/clientes')
         .then(response => response.json())
         .then(data => {
@@ -7,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
             zonas.forEach(zona => {
                 const button = document.createElement('button');
                 button.textContent = zona;
+                button.classList.add('zona-button');
                 button.onclick = function () {
                     localStorage.setItem('zonaSeleccionada', zona);
                     window.location.href = 'clientes.html';

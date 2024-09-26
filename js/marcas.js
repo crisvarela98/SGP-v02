@@ -5,10 +5,13 @@ document.addEventListener('DOMContentLoaded', function () {
     fetch('/models/productos')
         .then(response => response.json())
         .then(data => {
+            // Filtrar marcas únicas
             const marcas = [...new Set(data.map(producto => producto.Marca))];
+            // Crear un botón para cada marca
             marcas.forEach(marca => {
                 const button = document.createElement('button');
                 button.textContent = marca;
+                button.classList.add('marca-button');
                 button.onclick = function () {
                     localStorage.setItem('marcaSeleccionada', marca);
                     window.location.href = 'familias.html';

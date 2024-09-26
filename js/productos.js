@@ -1,8 +1,8 @@
-// Inicializamos el carrito desde el localStorage
-let carrito = JSON.parse(localStorage.getItem('carrito')) || []; 
+// Inicializar el carrito como un array vacío si no está definido en el localStorage
+let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
 
 if (!Array.isArray(carrito)) {
-    carrito = [];  // Si `carrito` no es un array, se inicializa como uno vacío
+    carrito = [];
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -10,20 +10,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const marcaSeleccionada = localStorage.getItem('marcaSeleccionada');
     const familiaSeleccionada = localStorage.getItem('familiaSeleccionada');
 
-    actualizarArtAgregados(); // Actualizamos el contador de artículos al cargar la página
+    actualizarArtAgregados();
 
-    // Verificamos si la marca y la familia están seleccionadas
     if (!marcaSeleccionada || !familiaSeleccionada) {
         alert('Por favor, selecciona primero una marca y una familia.');
-        window.location.href = 'marcas.html'; // Redirige a la selección de marca si no está definida
+        window.location.href = 'marcas.html';
         return;
     }
 
-    // Cargar los productos desde MongoDB y filtrarlos por marca y familia seleccionada
-    fetch(`/models/productos?marca=${marcaSeleccionada}&familia=${familiaSeleccionada}`)
+    // Cargar productos desde MongoDB utilizando una API de productos
+    fetch(`/models/productos?marca=${encodeURIComponent(marcaSeleccionada)}&familia=${encodeURIComponent(familiaSeleccionada)}`)
         .then(response => response.json())
         .then(data => {
-            // Filtramos los productos por la marca y la familia seleccionada
             const productosFiltrados = data.filter(producto => 
                 producto.Marca === marcaSeleccionada && producto.Familia1 === familiaSeleccionada
             );
@@ -41,17 +39,18 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function mostrarMensajeError(container, mensaje) {
-    container.innerHTML = `<p>${mensaje}</p>`;
+    container.innerHTML = `<p style="color: red;">${mensaje}</p>`;
 }
 
 function mostrarProductos(container, productos) {
-    container.innerHTML = ''; // Limpiar el contenedor antes de añadir productos
+    container.innerHTML = ''; // Limpiar el contenedor
 
     productos.forEach(producto => { 
         const num = producto.Oferta;
         let precio;
         let Oferta;
 
+        // Calcular el precio y la oferta
         if (num.includes('+')) {
             const [compra, regalo] = num.split('+').map(Number);
             Oferta = `Llevas ${compra} y tenés ${regalo} gratis`;
@@ -61,35 +60,54 @@ function mostrarProductos(container, productos) {
             Oferta = `Tiene un descuento del ${num}%`;
         }
 
+        // Construir el HTML del producto incluyendo la imagen
         const productoHTML = `
             <div class="producto-item">
+                <img class="imagen" src="/assets/Articulos/${producto.Codigo.substring(0, 2)}/${producto.Codigo}.jpg" alt="${producto.Descripcion}">
                 <div class="product-info">
                     <h1>${producto.Descripcion}</h1>
-                    <p class="price">Nuevo precio:</p>
-                    <p class="price">$${precio}</p>
+                    <p class="price">Nuevo precio: $${precio}</p>
+                    <p>${Oferta}</p>
+                    <p>Unibulto: ${producto.UniBulto}</p>
                 </div>
-                <label>${Oferta}</label>
-                <p>Unibulto: ${producto.UniBulto}</p>
-
                 <div class="unidades">
-                    <label for="unidades-${producto.Codigo}">Unidades:</label>
                     <button type="button" onclick="ajustarUnidades('${producto.Codigo}', -1)">-</button>
                     <input type="number" id="unidades-${producto.Codigo}" name="unidades" min="0" value="0">
                     <button type="button" onclick="ajustarUnidades('${producto.Codigo}', 1)">+</button>
                 </div>
-                
                 <button onclick="agregarBulto('${producto.Codigo}', ${producto.UniBulto})">Agregar Bulto (${producto.UniBulto} Unidades)</button>
                 <button onclick="agregarAlPedido('${producto.Codigo}', ${precio}, '${num}')">Agregar a Pedido</button>
             </div>
         `;
         container.innerHTML += productoHTML;
     });
+
+    // Manejar el evento de clic para ampliar la imagen
+    $(".imagen").click(function() {
+        const path = $(this).attr('src');
+        const modalHTML = `
+            <div id="imageModal" class="modal">
+                <img class="modal-content" src="${path}" alt="Imagen Ampliada">
+            </div>
+        `;
+        $("body").append(modalHTML);
+        $("#imageModal").fadeIn();
+
+        // Cerrar el modal al hacer clic en la imagen o fuera de ella
+        $(".modal-content, .modal").click(function() {
+            $("#imageModal").fadeOut(function() {
+                $(this).remove();
+            });
+        });
+    });
 }
 
 function ajustarUnidades(codigo, cantidad) {
     const unidadesInput = document.getElementById(`unidades-${codigo}`);
-    const nuevasUnidades = Math.max(0, (parseInt(unidadesInput.value) || 0) + cantidad);
-    unidadesInput.value = nuevasUnidades;
+    if (unidadesInput) {
+        const nuevasUnidades = Math.max(0, (parseInt(unidadesInput.value) || 0) + cantidad);
+        unidadesInput.value = nuevasUnidades;
+    }
 }
 
 function agregarBulto(codigo, unibulto) {
@@ -98,6 +116,7 @@ function agregarBulto(codigo, unibulto) {
 
 function agregarAlPedido(codigo, precio, oferta) {
     const unidadesInput = document.getElementById(`unidades-${codigo}`);
+    if (!unidadesInput) return;
     let unidades = parseInt(unidadesInput.value) || 0;
 
     if (unidades <= 0) {
@@ -111,7 +130,7 @@ function agregarAlPedido(codigo, precio, oferta) {
         unidadesBonificadas = Math.floor(unidades / compra) * regalo;
     }
 
-    // Verificar si ya existe el producto en el carrito
+    // Actualizar carrito
     let productoExistente = carrito.find(item => item.codigo === codigo && !item.bonificacion);
     if (productoExistente) {
         productoExistente.unidades += unidades;
@@ -151,10 +170,18 @@ function agregarAlPedido(codigo, precio, oferta) {
 
 function actualizarArtAgregados() {
     const artAgregados = document.getElementById('artAgregados');
-    artAgregados.textContent = `ART. Agregados: ${carrito.length}`;
+    if (artAgregados) {
+        artAgregados.textContent = `ART. Agregados: ${carrito.reduce((acc, item) => acc + item.unidades, 0)}`;
+    }
 }
 
+// Función para redirigir a la pantalla de pedido sin limpiar el localStorage
 function manejarAgregarAlCarrito() {
     localStorage.setItem('carrito', JSON.stringify(carrito));
     window.location.href = 'order_details.html';
+}
+
+// Función para redirigir a la pantalla de pedido
+function verPedido() {
+    manejarAgregarAlCarrito();
 }

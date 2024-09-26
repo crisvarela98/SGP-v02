@@ -7,6 +7,7 @@ body {
     overflow-x: hidden; /* Evitar desplazamiento horizontal */
     width: 100%;
 }
+
 header {
     display: flex;
     justify-content: center;
@@ -14,7 +15,6 @@ header {
     padding: 10px 0px;
     width: 100%;
     box-sizing: border-box;
-    
 }
 
 .back-button {
@@ -30,17 +30,15 @@ header {
     transition: background-color 0.3s;
 }
 
+.back-button:hover {
+    background-color: #A32A44;
+}
+
 h1 {
     color: #fff;
     margin: 0;
     text-align: center;
     flex-grow: 1;
-}
-
-
-
-.back-button:hover {
-    background-color: #A32A44;
 }
 
 .container {
@@ -55,16 +53,16 @@ h1 {
 
 #marcaContainer {
     width: 100%;
+    max-width: 600px; /* Limitar el ancho máximo */
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column; /* Organiza los botones como una lista */
     gap: 10px;
-    box-sizing: border-box; /* Asegura que el padding no desborde el contenedor */
+    box-sizing: border-box;
 }
 
 .marca-button {
     display: block;
-    width: calc(30% - 20px); /* Ajuste para evitar desbordamiento */
+    width: 100%;
     padding: 15px;
     font-size: 18px;
     color: #fff;
@@ -72,40 +70,27 @@ h1 {
     background-color: #333;
     cursor: pointer;
     border-radius: 5px;
-    transition: background-color 0.3s;
-    height: 100px;
-    margin: 10px 0; /* Reducir el margen vertical */
-    box-sizing: border-box; /* Asegura que el padding no desborde el botón */
-}
-.marca-button img {
-    display: block;
-    width: calc(30% - 20px); /* Ajuste para evitar desbordamiento */
-    padding: 15px;
-    font-size: 18px;
-    color: #fff;
-    border: 2px solid #C23D5C;
-    background-color: #333;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-    height: 100px;
-    margin: 10px 0; /* Reducir el margen vertical */
-    box-sizing: border-box; /* Asegura que el padding no desborde el botón */
+    transition: background-color 0.3s, border-color 0.3s;
+    margin: 10px 0; /* Espaciado vertical */
+    box-sizing: border-box;
+    text-align: left; /* Alinear texto a la izquierda */
 }
 
 .marca-button:hover {
     background-color: #A32A44;
+    border-color: #A32A44;
 }
 
 @media (max-width: 870px) {
     .marca-button {
-        width: calc(45% - 20px); /* Ajuste para pantallas pequeñas */
+        font-size: 16px;
+        padding: 15px;
     }
 }
 
 @media (max-width: 480px) {
     .marca-button {
-        width: calc(80% - 20px); /* Ajuste para pantallas muy pequeñas */
+        font-size: 14px;
+        padding: 10px;
     }
 }
-

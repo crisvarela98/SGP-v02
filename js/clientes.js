@@ -11,9 +11,13 @@ document.addEventListener('DOMContentLoaded', function () {
     fetch(`/models/clientes`)
         .then(response => response.json())
         .then(data => {
-            data.forEach(cliente => {
+            // Filtrar clientes por la zona seleccionada
+            const clientesFiltrados = data.filter(cliente => cliente.zone === zonaSeleccionada);
+            // Crear un botón para cada cliente
+            clientesFiltrados.forEach(cliente => {
                 const button = document.createElement('button');
                 button.textContent = cliente.name;
+                button.classList.add('cliente-button');
                 button.onclick = function () {
                     localStorage.setItem('clienteSeleccionado', JSON.stringify(cliente));
                     window.location.href = 'marcas.html';

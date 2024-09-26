@@ -14,16 +14,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Sección para cargar pedidos desde localStorage (en caso de no usar MongoDB)
-    function loadOrdersFromLocalStorage() {
-        const orders = JSON.parse(localStorage.getItem('pedidos')) || [];
-        if (orders.length > 0) {
-            displayOrders(orders);
-        } else {
-            showNoOrdersMessage();
-        }
-    }
-
     // Mostrar pedidos en la página
     function displayOrders(orders) {
         const orderList = document.getElementById('order-list');
@@ -133,6 +123,8 @@ document.addEventListener('DOMContentLoaded', function () {
             </table>
         `;
 
+        // Guardar la orden en el dataset del modal para luego descargar el PDF
+        modal.dataset.currentOrder = JSON.stringify(order);
         modal.style.display = "flex";
     }
 
@@ -159,6 +151,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const filterStatus = document.getElementById('filter-status');
     filterStatus.addEventListener('change', loadOrdersFromMongoDB);
 
+    // Añadir evento de descarga de PDF usando `send_order1.js`
+    document.getElementById('download-pdf').addEventListener('click', function () {
+        const modal = document.getElementById('order-modal');
+        const order = JSON.parse(modal.dataset.currentOrder);
+
+        // Verificar si la función `downloadOrderPDF` está definida
+        if (typeof window.downloadOrderPDF === 'function') {
+            window.downloadOrderPDF(order); // Llamar a la función de `send_order1.js` para generar el PDF
+        } else {
+            console.error('La función downloadOrderPDF no está definida en send_order1.js');
+            alert('Error: La función para generar el PDF no está disponible.');
+        }
+    });
+
     // Cargar pedidos (usar localStorage o MongoDB)
     const useMongoDB = true; // Cambia esto a `false` si deseas usar `localStorage` en lugar de MongoDB.
     if (useMongoDB) {
@@ -167,3 +173,5 @@ document.addEventListener('DOMContentLoaded', function () {
         loadOrdersFromLocalStorage();
     }
 });
+
+
