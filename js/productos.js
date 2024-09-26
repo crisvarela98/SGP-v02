@@ -158,7 +158,3 @@ function manejarAgregarAlCarrito() {
     localStorage.setItem('carrito', JSON.stringify(carrito));
     window.location.href = 'order_details.html';
 }
-
-function verPedido() {
-    manejarAgregarAlCarrito();
-}
