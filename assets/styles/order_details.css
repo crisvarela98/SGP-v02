@@ -12,8 +12,6 @@ header {
     align-items: center;
     background-color: #222;
     padding: 10px 20px;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #444;
 }
 
 h1 {
@@ -21,10 +19,9 @@ h1 {
     margin: 0;
     text-align: center;
     flex-grow: 1;
-    font-size: 1.8em;
 }
 
-.back-button, .order-action-link {
+.back-button, .new-customer-button, .order-action-link {
     background-color: #C23D5C;
     color: #fff;
     border: none;
@@ -33,31 +30,33 @@ h1 {
     cursor: pointer;
     transition: background-color 0.3s;
     text-align: center;
-    margin: 10px;
-    text-decoration: none;
-    font-size: 16px;
+    margin-right: 10px;
 }
 
-.back-button:hover, .order-action-link:hover {
+.back-button:hover, .new-customer-button:hover, .order-action-link:hover {
     background-color: #A32A44;
 }
 
 .content {
     padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
 }
 
-.customer-info {
+.customer-selection {
+    display: flex;
+    align-items: center;
     margin-bottom: 20px;
-    padding: 15px;
-    background-color: #333;
-    border-radius: 10px;
 }
 
-.customer-info p {
-    margin: 5px 0;
-    line-height: 1.5;
+.customer-selection label {
+    margin-right: 10px;
+}
+
+#customer-select {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #333;
+    color: #fff;
 }
 
 .order-details {
@@ -65,7 +64,6 @@ h1 {
     padding: 20px;
     border-radius: 10px;
     overflow-x: auto;
-    margin-bottom: 20px;
 }
 
 .order-table {
@@ -78,38 +76,31 @@ h1 {
     border: 1px solid #555;
     padding: 10px;
     text-align: left;
-    font-size: 14px;
 }
 
 .order-table th {
-    background-color: #444;
+    background-color: #333;
     color: #fff;
-    text-transform: uppercase;
 }
 
 .order-table td {
-    background-color: #555;
+    background-color: #444;
     color: #fff;
 }
 
 .total-container {
     display: flex;
     justify-content: space-between;
-    margin-top: 10px;
+    margin-top: 20px;
     font-size: 18px;
-}
-
-.total-container span {
-    font-weight: bold;
 }
 
 .actions {
     display: flex;
-    justify-content: center;
     margin-top: 20px;
 }
 
-.order-action-link {
+.actions button {
     background-color: #C23D5C;
     color: #fff;
     border: none;
@@ -117,12 +108,23 @@ h1 {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
-    text-align: center;
-    margin: 10px;
-    text-decoration: none;
-    font-size: 16px;
+    flex-grow: 1;
+    margin: 0 10px;
+    text-decoration:none;
 }
 
-.order-action-link:hover {
+.actions button:hover {
     background-color: #A32A44;
+}
+
+
+.customer-info {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #333;
+    border-radius: 10px;
+}
+
+.customer-info p {
+    margin: 5px 0;
 }

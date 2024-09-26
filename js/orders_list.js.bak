@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <p><strong>Cliente:</strong> ${order.customer ? order.customer.name : 'No disponible'}</p>
                     <p><strong>Fecha:</strong> ${order.date}</p>
                     <p><strong>Estado:</strong> ${order.status}</p>
+                    <p><strong>Total Productos:</strong> ${order.cart.length}</p>
                 </div>
                 <div class="order-item-actions">
                     <button class="view-button" data-id="${order._id || order.id}">Ver</button>
@@ -120,10 +121,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     `).join('')}
                 </tbody>
             </table>
-			 <div class="order-item-actions">
-                <button class="confirma-button" data-id="${order.id}">Confirmar</button>
-                <button class="save-button" data-id="${order.id}">Guardar</button>
-            </div>
         `;
 
         // Guardar la orden en el dataset del modal para luego descargar el PDF
