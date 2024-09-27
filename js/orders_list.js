@@ -120,15 +120,47 @@ document.addEventListener('DOMContentLoaded', function () {
                     `).join('')}
                 </tbody>
             </table>
-			 <div class="order-item-actions">
-                <button class="confirma-button" data-id="${order.id}">Confirmar</button>
-                <button class="save-button" data-id="${order.id}">Guardar</button>
+            <div class="order-item-actions">
+                <button class="confirm-button" data-id="${order._id || order.id}">Confirmar</button>
+                <button class="save-button" data-id="${order._id || order.id}">Guardar</button>
             </div>
         `;
 
-        // Guardar la orden en el dataset del modal para luego descargar el PDF
+        attachModalButtonListeners(order);
         modal.dataset.currentOrder = JSON.stringify(order);
         modal.style.display = "flex";
+    }
+
+    function attachModalButtonListeners(order) {
+        document.querySelector('.confirm-button').addEventListener('click', () => {
+            confirmOrder(order._id || order.id);
+        });
+
+        document.querySelector('.save-button').addEventListener('click', () => {
+            saveOrder(order._id || order.id);
+        });
+    }
+
+    // Función para confirmar un pedido
+    async function confirmOrder(orderId) {
+        try {
+            await fetch(`/models/pedidos/${orderId}/confirmar`, { method: 'PUT' });
+            closeModal();
+            loadOrdersFromMongoDB();
+        } catch (error) {
+            console.error('Error al confirmar el pedido:', error);
+        }
+    }
+
+    // Función para guardar un pedido
+    async function saveOrder(orderId) {
+        try {
+            await fetch(`/models/pedidos/${orderId}/guardar`, { method: 'PUT' });
+            closeModal();
+            loadOrdersFromMongoDB();
+        } catch (error) {
+            console.error('Error al guardar el pedido:', error);
+        }
     }
 
     // Cancelar un pedido
@@ -159,9 +191,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const modal = document.getElementById('order-modal');
         const order = JSON.parse(modal.dataset.currentOrder);
 
-        // Verificar si la función `downloadOrderPDF` está definida
         if (typeof window.downloadOrderPDF === 'function') {
-            window.downloadOrderPDF(order); // Llamar a la función de `send_order1.js` para generar el PDF
+            window.downloadOrderPDF(order);
         } else {
             console.error('La función downloadOrderPDF no está definida en send_order1.js');
             alert('Error: La función para generar el PDF no está disponible.');
@@ -169,12 +200,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Cargar pedidos (usar localStorage o MongoDB)
-    const useMongoDB = true; // Cambia esto a `false` si deseas usar `localStorage` en lugar de MongoDB.
+    const useMongoDB = true;
     if (useMongoDB) {
         loadOrdersFromMongoDB();
     } else {
         loadOrdersFromLocalStorage();
     }
 });
-
 

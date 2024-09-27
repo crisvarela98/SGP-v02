@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     listItem.querySelector('.edit-button').onclick = () => editClient(client);
                     listItem.querySelector('.delete-button').onclick = () => deleteClient(client._id);
-                    listItem.querySelector('.history-button').onclick = () => showOrderHistory(client);
+                    listItem.querySelector('.history-button').onclick = () => showOrderHistory(client._id); // Pasar `client._id` para filtrar correctamente
 
                     clientList.appendChild(listItem);
                 });
@@ -141,33 +141,47 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Mostrar historial de pedidos desde MongoDB
-    function showOrderHistory(client) {
+    function showOrderHistory(clientId) {
         const historyModal = document.getElementById('history-modal');
         historyModal.style.display = "block";
 
-        // Obtener pedidos desde MongoDB
-        fetch(`/models/pedidos?clientId=${client._id}`)
+        // Obtener pedidos desde MongoDB y filtrarlos por `clientId`
+        fetch(`/models/pedidos`)
             .then(response => response.json())
             .then(orders => {
                 const orderHistoryList = document.getElementById('order-history-list');
                 orderHistoryList.innerHTML = '';
 
-                // Mostrar cada pedido con Nro, Fecha y Monto
-                orders.forEach(order => {
-                    const total = order.cart.reduce((acc, item) => acc + (item.precioUnitario * item.unidades), 0).toFixed(2);
-                    const listItem = document.createElement('li');
-                    listItem.innerHTML = `Pedido Nro: ${order.id}, Fecha: ${order.date}, Monto: $${total}`;
-                    orderHistoryList.appendChild(listItem);
-                });
+                // Filtrar los pedidos que coincidan con el `clientId` del cliente seleccionado
+                const filteredOrders = orders.filter(order => order.clientId === clientId);
 
-                // Botón para ver todos los pedidos
-                const goToOrdersButton = document.createElement('button');
-                goToOrdersButton.textContent = 'Ver todos los pedidos';
-                goToOrdersButton.classList.add('go-to-orders-button');
-                goToOrdersButton.onclick = () => {
-                    window.location.href = '/views/orders_list.html';
-                };
-                orderHistoryList.appendChild(goToOrdersButton);
+                if (filteredOrders.length === 0) {
+                    // Si no hay pedidos, mostrar mensaje
+                    const noOrdersMessage = document.createElement('li');
+                    noOrdersMessage.textContent = 'Este cliente no tiene pedidos realizados.';
+                    orderHistoryList.appendChild(noOrdersMessage);
+                } else {
+                    // Mostrar cada pedido con Nro, Fecha, Monto y Estado
+                    filteredOrders.forEach(order => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `
+                            <strong>Pedido Nro:</strong> ${order.id}<br>
+                            <strong>Fecha:</strong> ${order.date}<br>
+                            <strong>Monto Total:</strong> $${order.total.toFixed(2)}<br>
+                            <strong>Estado:</strong> ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        `;
+                        orderHistoryList.appendChild(listItem);
+                    });
+
+                    // Botón para ver todos los pedidos
+                    const goToOrdersButton = document.createElement('button');
+                    goToOrdersButton.textContent = 'Ver todos los pedidos';
+                    goToOrdersButton.classList.add('go-to-orders-button');
+                    goToOrdersButton.onclick = () => {
+                        window.location.href = '/views/orders_list.html';
+                    };
+                    orderHistoryList.appendChild(goToOrdersButton);
+                }
             })
             .catch(error => console.error('Error al obtener el historial de pedidos:', error));
     }

@@ -29,4 +29,3 @@ const pedidoSchema = new mongoose.Schema({
 }, { timestamps: true }); // Para incluir createdAt y updatedAt automáticamente
 
 module.exports = mongoose.model('Pedido', pedidoSchema);
-

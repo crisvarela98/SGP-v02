@@ -140,13 +140,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function saveOrConfirmOrder(status) {
+        const total = cart.reduce((acc, item) => acc + (item.precioUnitario * item.unidades), 0); // Calcular total del pedido
         const order = {
             id: orderId,
+            clientId: selectedClient._id, // Agregar `clientId`
             customer: selectedClient,
             zone: selectedZone,
             date: new Date().toLocaleString(),
             status: status,
-            cart: cart
+            cart: cart,
+            total: total // Agregar total al pedido
         };
 
         // Incrementar el ID para el próximo pedido
